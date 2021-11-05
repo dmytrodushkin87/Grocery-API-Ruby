@@ -1,0 +1,36 @@
+version: '2'
+services:
+  db:
+    image: mysql:5.7
+    command: ["mysqld", "--ignore-db-dir=lost+found", "--explicit_defaults_for_timestamp"]
+    volumes:
+     - grocery-mysql:/var/lib/mysql
+    restart: always
+    ports:
+      - "3307:3306"
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=akansha
+  web:
+    build: .
+    volumes:
+      - .:/myapp
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    links:
+      - db
+    env_file:
+      - .env
+  nginx:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.nginx
+    depends_on:
+      - web
+    ports:
+      - '8020:8020'
+
+volumes:
+  grocery-mysql:
